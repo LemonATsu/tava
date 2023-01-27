@@ -132,6 +132,13 @@ def cli(subect_id: str, frame_interval=5):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     torch.save(data, save_path)
 
+    split_path = os.path.join(
+        PROJECT_DIR, "data", "h36m_zju", "%s" % subject_id, "Posing"
+    )
+    os.makedirs(split_path, exist_ok=True)
+    np.savetxt(os.path.join(split_path, 'train.txt'), frame_ids[:n_train], fmt='%d')
+    np.savetxt(os.path.join(split_path, 'test.txt'), frame_ids[-n_eval:], fmt='%d')
+
 
 if __name__ == "__main__":
     for subject_id in DATA_CONFIG.keys():

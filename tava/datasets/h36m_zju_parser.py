@@ -11,9 +11,8 @@ class SubjectParser(zju_parser.SubjectParser):
 
     WIDTH = 1000
     HEIGHT = 1000
-    N_FRAME_INTERVAL = 5
 
-    def __init__(self, subject_id: str, root_fp: str):
+    def __init__(self, subject_id: str, root_fp: str, frame_interval: int):
         if not root_fp.startswith("/"):
             # allow relative path. e.g., "./data/zju/"
             root_fp = os.path.join(
@@ -21,6 +20,7 @@ class SubjectParser(zju_parser.SubjectParser):
                 "..", "..",
                 root_fp,
             )
+        self.frame_interval = frame_interval
         self.subject_id = subject_id
         self.root_fp = root_fp
         self.root_dir = os.path.join(root_fp, subject_id, "Posing")
@@ -34,10 +34,10 @@ class SubjectParser(zju_parser.SubjectParser):
 
         self.image_files = np.array(
             #[[os.path.join(self.root_dir, fp) for fp in fps["ims"]] for fps in annots_data["ims"]], dtype=str
-            [[fp for fp in fps["ims"]] for fps in annots_data["ims"]], dtype=str
+            [[fp for fp in fps["ims"]] for fps in annots_data["ims"][::frame_interval]], dtype=str
         )
-        self._frame_ids = list(range(self.image_files.shape[0]))
-        #self._frame_ids = list(np.arange(len(self.image_files))*self.N_FRAME_INTERVAL)
+        #self._frame_ids = list(range(self.image_files.shape[0]))
+        self._frame_ids = list(np.arange(len(self.image_files)))
         self._camera_ids = list(range(self.image_files.shape[1]))
 
     def load_image(self, frame_id: int, camera_id: int):
@@ -82,7 +82,7 @@ class SubjectParser(zju_parser.SubjectParser):
         ]
         return {
             key: (
-                data[key][np.array(frame_ids)//self.N_FRAME_INTERVAL].numpy()
+                data[key][frame_ids].numpy()
                 if (
                     frame_ids is not None
                     and key in ["verts", "joints", "tfs", "tf_bones", "params"]

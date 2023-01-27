@@ -14,7 +14,7 @@ weight_decay_mult: 0.0
 
 percision: float32
 print_every: 100
-save_every: 1000
+save_every: 10000
 test_chunk: 512
 eval_every: 10_000
 eval_splits: []

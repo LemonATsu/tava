@@ -21,18 +21,19 @@ def _dataset_view_split(parser, split):
         camera_ids = [3]
     return camera_ids
 
-def _dataset_frame_split(parser, split):
+def _dataset_frame_split(parser, split, frame_interval=5):
     if split in ['train']:
         splits_fp = os.path.join(parser.root_dir, 'train.txt')
     else:
-        raise NotImplementedError('error')
+        splits_fp = os.path.join(parser.root_dir, 'test.txt')
     with open(splits_fp, mode='r') as fp:
-        frame_list = np.loadtxt(fp, dtype=int).tolist()
+        frame_list = (np.loadtxt(fp, dtype=int) // frame_interval).tolist()
+
     return frame_list
 
-def _dataset_index_list(parser, split):
+def _dataset_index_list(parser, split, frame_interval=5):
     camera_ids = _dataset_view_split(parser, split)
-    frame_list = _dataset_frame_split(parser, split)
+    frame_list = _dataset_frame_split(parser, split, frame_interval)
     index_list = []
     for frame_id in frame_list:
         index_list.extend([(frame_id, camera_id) for camera_id in camera_ids])
@@ -40,6 +41,7 @@ def _dataset_index_list(parser, split):
 
 class SubjectLoader(zju_loader.SubjectLoader):
     SPLIT = ['train', 'test']
+    N_FRAME_INTERVAL = 5
 
     def __init__(
         self, 
@@ -65,7 +67,7 @@ class SubjectLoader(zju_loader.SubjectLoader):
         self.legacy = legacy
         self.training = (num_rays is not None) and (split in ["train", "all"])
         self.color_bkgd_aug = color_bkgd_aug
-        self.parser = SubjectParser(subject_id=subject_id, root_fp=root_fp)
-        self.index_list = _dataset_index_list(self.parser, split)
+        self.parser = SubjectParser(subject_id=subject_id, root_fp=root_fp, frame_interval=self.N_FRAME_INTERVAL)
+        self.index_list = _dataset_index_list(self.parser, split, self.N_FRAME_INTERVAL)
         self.dtype = torch.get_default_dtype()
         CachedIterDataset.__init__(self, self.training, cache_n_repeat)

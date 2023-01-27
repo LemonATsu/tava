@@ -101,6 +101,11 @@ def eval_epoch(
                     image_path.replace(".png", ".npy"),
                     np.float32(pred_warp.cpu().numpy()),
                 )
+            image_path = os.path.join(save_dir, f'{index:04d}.png')
+            imageio.imwrite(
+                image_path,
+                np.uint8(pred_color.cpu().numpy() * 255.0),
+            )
 
     if world_size > 1:
         # sync across all GPUs

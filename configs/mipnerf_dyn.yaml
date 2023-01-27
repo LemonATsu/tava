@@ -47,7 +47,7 @@ hydra:
       "
 
 # set the dataset split.
-eval_splits: ["val_ood", "val_ind"]
+eval_splits: ["test"]
 train_split: "train"
 
 # set the losses.

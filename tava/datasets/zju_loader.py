@@ -94,7 +94,8 @@ class SubjectLoader(CachedIterDataset):
                 color_bkgd = torch.zeros(3, dtype=rgba.dtype)
         else:
             # just use black during inference
-            color_bkgd = torch.zeros(3, dtype=rgba.dtype)
+            #color_bkgd = torch.zeros(3, dtype=rgba.dtype)
+            color_bkgd = torch.ones(3, dtype=rgba.dtype)
 
         # only replace regions with `alpha == 0` to `color_bkgd`
         image = image * (alpha != 0) + color_bkgd * (alpha == 0)
@@ -175,6 +176,7 @@ class SubjectLoader(CachedIterDataset):
             "rigid_clusters": torch.tensor(
                 self.parser.RIGID_BONE_IDS
             ).long(),  # bone cluster ids
+            "cameras": cameras,  # [1,]
         }
 
     def build_pose_meta_info(self):
